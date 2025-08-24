@@ -1,18 +1,19 @@
 @tool
 extends EditorPlugin
 
+const META_STRING = "_TILE_MAP_DATA_"
+
 var dock : Control
 var button : Button
 var tile_map_data : TileMapLayer
 var tile_coords : Vector2i
-var packed_scene : PackedScene
 var tile_data : TileData
 var data_layer : Dictionary[Vector2i, Dictionary] = {}
-var property_node_scene = preload("res://addons/tilemaplayer-data/editor/tile_data_property.tscn")
+var property_node_scene = preload("res://addons/tile-map-data/editor/tile_data_property.tscn")
 
 func _enter_tree() -> void:
 	await get_tree().process_frame
-	dock = load("res://addons/tilemaplayer-data/editor/Dock.tscn").instantiate()
+	dock = load("res://addons/tile-map-data/editor/Dock.tscn").instantiate()
 
 	button = add_control_to_bottom_panel(dock, "Map Data")
 	button.visible = false
@@ -32,29 +33,35 @@ func _edit(object: Object) -> void:
 		tile_map_data = object
 
 func _forward_canvas_draw_over_viewport(viewport_control: Control) -> void:
-	pass
-	#if tile_map_data and tile_coords:
-		#viewport_control.draw_rect(
-			#Rect2(
-				#Vector2(
-					#tile_map_data.tile_set.tile_size.x * tile_coords.x,
-					#tile_map_data.tile_set.tile_size.y * tile_coords.y
-				#),
-				#tile_map_data.tile_set.tile_size
-			#),
-			#Color.WHITE
-		#)
+	var viewport : SubViewport = EditorInterface.get_editor_viewport_2d()
+	var transform : Transform2D = viewport.global_canvas_transform
+
+	print(viewport, transform)
+
+	if tile_map_data and tile_coords:
+		viewport_control.draw_rect(
+			Rect2(
+				Vector2(
+					(tile_map_data.tile_set.tile_size.x * transform.x[0]) * tile_coords.x,
+					(tile_map_data.tile_set.tile_size.y * transform.y[1]) * tile_coords.y
+				) + transform.origin,
+				Vector2(tile_map_data.tile_set.tile_size * transform.x[0]),
+			),
+			Color.WHITE,
+			false,
+			4.0
+		)
 
 func _forward_canvas_gui_input(event: InputEvent) -> bool:
 	if event is InputEventMouseButton and event.button_index == 1:
 		tile_coords = tile_map_data.local_to_map(EditorInterface.get_editor_viewport_2d().get_mouse_position())
-		var source = tile_map_data.tile_set.get_source(tile_map_data.get_cell_source_id(tile_coords)) as TileSetSource
 
-		_show_tile_form(source)
+		_show_tile_form()
 
 	return false
 
-func _show_tile_form(source: TileSetSource) -> void:
+func _show_tile_form() -> void:
+	var source = tile_map_data.tile_set.get_source(tile_map_data.get_cell_source_id(tile_coords)) as TileSetSource
 	var tile_data : Dictionary[StringName, Dictionary]
 
 	if source is TileSetAtlasSource:
@@ -86,15 +93,14 @@ func get_tile_atlas_source(source: TileSetAtlasSource) -> Dictionary[StringName,
 
 
 func get_scene_collection_source(source: TileSetScenesCollectionSource) -> Dictionary[StringName, Dictionary]:
-	packed_scene = source.get_scene_tile_scene(tile_map_data.get_cell_alternative_tile(tile_coords))
+	var packed_scene : PackedScene = source.get_scene_tile_scene(tile_map_data.get_cell_tile(tile_coords))
 	var state = packed_scene.get_state()
-
 	var script = packed_scene.get_script()
 
 	var node_dictionary : Dictionary[StringName, Dictionary]
 	# Loop through every node in this tile if node has properties dig through them
 	for idx in range(0, state.get_node_count() ):
-		var node = state.get_node_instance(idx)
+		var node : PackedScene = state.get_node_instance(idx)
 
 		if state.get_node_property_count(idx) > 0:
 			var node_definition : Dictionary[StringName, Dictionary] = {}
@@ -120,16 +126,48 @@ func get_scene_collection_source(source: TileSetScenesCollectionSource) -> Dicti
 
 	return node_dictionary
 
+
+#Get the value of the scene
+func get_node_value(tile_coords, node, control):
+	var source : TileSetSource = tile_map_data.tile_set.get_source(tile_map_data.get_cell_source_id(tile_coords)) as TileSetSource
+	var packed_scene : PackedScene = source.get_scene_tile_scene(tile_map_data.get_cell_tile(tile_coords))
+	var state = packed_scene.get_state()
+
+	pass
+
+#Overrides the value of
+func set_node_value():
+	pass
+
+#Get the override value
+func get_override_value(tile_coords, node, control) -> Variant:
+	var metadata = tile_map_data.get_meta(META_STRING)
+	if ! metadata.has(tile_coords):
+		return
+
+	if ! metadata[tile_coords].has(node):
+		return
+
+	if ! metadata[tile_coords][node].has(control):
+		return
+
+	return metadata[tile_coords][node][control]
+
+#Set the override value
+func set_override_value(tile_coords, node, control, value):
+	pass
+
 func render_tile_form(data: Dictionary[StringName, Dictionary]) -> void:
 	for child in dock.find_child(&'PropertyContainer').get_children():
 		child.queue_free()
+
+	#Loops through Child nodes
 	for node in data:
 		var property_node = property_node_scene.instantiate()
 		property_node.find_child(&'Label').text = node
 
 		for label in data[node]:
 			var property = data[node][label]
-			property_node.find_child("GridContainer")
 			var label_node = Label.new()
 			label_node.text = property.name
 

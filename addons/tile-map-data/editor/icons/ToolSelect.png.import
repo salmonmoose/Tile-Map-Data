@@ -3,21 +3,23 @@
 importer="texture"
 type="CompressedTexture2D"
 uid="uid://cw0emfe8w0nnx"
-path="res://.godot/imported/ToolSelect.png-18df71b78a88cbec503d94573c432979.ctex"
+path="res://.godot/imported/ToolSelect.png-2d29fa964f4f6b3541aa65e9d4b9e17f.ctex"
 metadata={
 "vram_texture": false
 }
 
 [deps]
 
-source_file="res://addons/tilemaplayer-data/editor/icons/ToolSelect.png"
-dest_files=["res://.godot/imported/ToolSelect.png-18df71b78a88cbec503d94573c432979.ctex"]
+source_file="res://addons/tile-map-data/editor/icons/ToolSelect.png"
+dest_files=["res://.godot/imported/ToolSelect.png-2d29fa964f4f6b3541aa65e9d4b9e17f.ctex"]
 
 [params]
 
 compress/mode=0
 compress/high_quality=false
 compress/lossy_quality=0.7
+compress/uastc_level=0
+compress/rdo_quality_loss=0.0
 compress/hdr_compression=1
 compress/normal_map=0
 compress/channel_pack=0
@@ -25,6 +27,10 @@ mipmaps/generate=false
 mipmaps/limit=-1
 roughness/mode=0
 roughness/src_normal=""
+process/channel_remap/red=0
+process/channel_remap/green=1
+process/channel_remap/blue=2
+process/channel_remap/alpha=3
 process/fix_alpha_border=true
 process/premult_alpha=false
 process/normal_map_invert_y=false
