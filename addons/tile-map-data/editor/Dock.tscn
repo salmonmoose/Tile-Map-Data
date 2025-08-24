@@ -1,0 +1,52 @@
+[gd_scene load_steps=3 format=3 uid="uid://b36x4fv8dpete"]
+
+[ext_resource type="Script" uid="uid://dd4yachrmuus8" path="res://addons/tilemaplayer-data/editor/Dock.gd" id="1_wcqpf"]
+
+[sub_resource type="SVGTexture" id="SVGTexture_wcqpf"]
+_source = "<svg xmlns=\"http://www.w3.org/2000/svg\" width=\"16\" height=\"16\"><path fill=\"#ff5d5d\" d=\"M2 1v8.586l1.293-1.293a1 1 0 0 1 1.414 0L7 10.587l2.293-2.293a1 1 0 0 1 1.414 0L13 10.586l1-1V6H9V1H2zm8 0v4h4zm-6 9.414-2 2V15h12v-2.586l-.293.293a1 1 0 0 1-1.414 0L10 10.414l-2.293 2.293a1 1 0 0 1-1.414 0L4 10.414z\"/></svg>
+"
+
+[node name="TileMapLayerData" type="Control"]
+layout_mode = 3
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+script = ExtResource("1_wcqpf")
+
+[node name="VBoxContainer" type="VBoxContainer" parent="."]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+
+[node name="ToolBar" type="HBoxContainer" parent="VBoxContainer"]
+layout_mode = 2
+
+[node name="SelectTiles" type="Button" parent="VBoxContainer/ToolBar"]
+unique_name_in_owner = true
+layout_mode = 2
+toggle_mode = true
+icon = SubResource("SVGTexture_wcqpf")
+
+[node name="Panel" type="Panel" parent="VBoxContainer"]
+clip_contents = true
+layout_mode = 2
+size_flags_horizontal = 3
+size_flags_vertical = 3
+
+[node name="ScrollContainer" type="ScrollContainer" parent="VBoxContainer/Panel"]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+
+[node name="PropertyContainer" type="VBoxContainer" parent="VBoxContainer/Panel/ScrollContainer"]
+layout_mode = 2
+size_flags_horizontal = 3
+size_flags_vertical = 3
