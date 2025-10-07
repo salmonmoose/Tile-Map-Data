@@ -1,5 +1,5 @@
 @tool
-extends EditorPlugin
+class_name TileMapDataLayer extends EditorPlugin
 
 const META_STRING = "TILE_MAP_DATA_"
 
@@ -13,9 +13,11 @@ var property_node_scene = preload("res://addons/tile-map-data/editor/tile_data_p
 func _enter_tree() -> void:
 	await get_tree().process_frame
 	dock = load("res://addons/tile-map-data/editor/Dock.tscn").instantiate()
+	add_autoload_singleton("TileMapLayerData", "res://addons/tile-map-data/TileMapLayerDataRuntime.gd")
 
 	button = add_control_to_bottom_panel(dock, "Map Data")
 	button.visible = false
+
 
 func _exit_tree() -> void:
 	remove_control_from_bottom_panel(dock)
@@ -234,3 +236,19 @@ func render_tile_form(data: Dictionary[StringName, Dictionary]) -> void:
 
 func _handle_control_toggle(state, tile_coords, node, control) -> void:
 	set_override_value(tile_coords, node, control, state)
+
+
+static func _apply_config(_node : TileMapLayer) -> void:
+	print("Applying config %s : %s" % [_node, _node.get_meta(META_STRING)])
+	var meta = _node.get_meta(META_STRING)
+
+	for position in meta:
+		for node in meta[position]:
+			match node:
+				&"TileData":
+					_apply_tile_data(_node, position, meta[position][node])
+
+
+static func _apply_tile_data(_node : TileMapLayer, position, data) -> void:
+	for property in data:
+		_node.get_cell_tile_data(position).set_custom_data(property, data[property])
